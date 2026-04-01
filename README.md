@@ -1,118 +1,78 @@
-# Polymarket Arbitrage Trading Bot (TypeScript) 
+# Polymarket Copytrading Bot
 
-A Polymarket Trading bot that trades on [Polymarket](https://polymarket.com) **binary crypto markets** (e.g. “Bitcoin up or down in the next 15 minutes”). It connects to Polymarket’s CLOB and real-time data, subscribes to a market by coin and period, and can run configurable strategies.
+Polymarket Copytrading Bot which copies trades from one or more leader addresses on Polymarket. Config in `trade.toml`, secrets in `.env`.
 
+While many traders focus heavily on crypto prediction markets, I noticed that they can be extremely volatile and unpredictable in short timeframes. Rapid price swings, aggressive position flipping, and sudden liquidity shifts make consistent automation difficult.
 
-## What kind of bot is this?
+When I started looking at Polymarket, I noticed one thing right away: markets can be unpredictable. Crypto markets, in particular, move fast—prices swing, positions flip, and liquidity can change in an instant, making consistent automation really tricky.
 
-**Not classic arbitrage.** The codebase supports two styles of logic:
+Instead of limiting the bot to one type of market, I decided to build a system that could copy trades across all kinds of markets—Politics, Sports, Crypto, Economic events, and more. The idea was simple: follow experienced traders, act quickly, and stay flexible, no matter what market they’re in.
 
-1. **Trend-following (`trade_1` in `decision.ts`)**  
-   Detects short-term “trend” from order-book price changes and would buy the **UP** or **DOWN** token when the market is trending that way, within a configurable price range. This is **directional trading**, not arbitrage.
+I started development in early February 2026, spending a couple of weeks testing, refining filters, timing logic, and position sizes. Running simulations on historical data and testing with a small live balance showed promising results: steady, consistent gains without chasing extreme volatility.
 
-2. **Binary “arbitrage” (`trade_1` in `ws_clob.ts`)**  
-   When real-time price velocity exceeds a threshold, it computes prices such that UP + DOWN &lt; 1 − `min_arb_price_difference`, and would buy **both** UP and DOWN to lock in a margin. That’s **binary market arbitrage** (buying both sides when they’re cheap relative to $1).  
+The strategy isn’t about explosive wins. It’s about disciplined copy trading, spreading risk across multiple markets, and aiming for smooth, reliable performance. By following multiple leaders and diversifying trades, the bot can handle fast-moving markets like sports and crypto while still keeping long-term events, like politics and macroeconomics, in play.
 
-**Current state:** Order placement for both strategies is **commented out**. The bot runs as a **framework**: it connects, subscribes to markets and RTDS, updates prices, and logs signals; it does not send live orders unless you uncomment and enable the trade calls.
+In short, it’s a long-term, flexible system built for steady growth, smart risk control, and automated trading across the full spectrum of Polymarket.
+This is a long-term strategy — built around discipline, diversification, and steady growth rather than hype.
 
-## Features
+# Market Types
 
-- **Market selection**: Coin (`btc`, `eth`, `sol`, `xrp`) and period (15, 60, 240, 1440 minutes).
-- **Live data**: CLOB WebSocket (order book) and RTDS (e.g. BTCUSDT / Chainlink) for price velocity.
-- **Strategies**: `trade_1` (time/price exit), `trade_2` (entry/exit ranges + optional emergency swap).
-- **Config**: TOML config (`trade.toml`) for strategy, market, trading range, thresholds, simulation.
-- **Simulation**: Optional `simulation = true` to skip sending orders.
+- Polymarket includes Politics, Sports, Crypto, Economic, Geopolitical, Entertainment, and Experimental markets.
+- Politics & Macro markets are longer-term and news-driven, suitable for medium-term copy strategies.
+- Sports & Crypto markets are fast-moving and require quick execution (websocket mode recommended).
+- Entertainment markets tend to be slower and lower volatility.
+- Experimental / low-liquidity markets carry higher slippage risk and should use size limits.
 
-## Change the market(`trade.toml`)
-
-   You can change crypto market 
-   ** [market]
-      market_coin = "btc"  # btc / eth / sol / xrp
-      market_period = "5" # 5 / 15 / 60 / 240 / 1440 **
-
-## Strategy logic (`decision.ts`)
-
-### trade_1 — Time / price exit
-
-- **Goal**: Hold a position (UP or DOWN) and exit when either time or price threshold is reached.
-- **Exit**: If **remaining time ratio** (elapsed time / market duration) &gt; `trade_1.exit_time_ratio` **or** **up-price ratio** (distance of UP bid from 0.5) &gt; `trade_1.exit_price_ratio`, the bot sells the currently held token:
-  - Holding **UP** → `sellUpToken()`
-  - Holding **DOWN** → `sellDownToken()`
-- **Config** (`[trade_1]` in `trade.toml`): `exit_time_ratio`, `exit_price_ratio`, plus `entry_price_range`, `swap_price_range`, `take_profit`, `stop_loss` for future entry/risk logic.
-
-### trade_2 — Entry/exit ranges + emergency swap
-
-- **Goal**: Enter when price and time are in range; exit when price is in an exit band; optionally flip to the opposite side in an “emergency” price band.
-- **Entry** (when not holding): If `remaining_time_ratio` &gt; `trade_2.entry_time_ratio` and **up-price ratio** is inside `trade_2.entry_price_ratio` `[min, max]`, buy the cheaper side (UP if `upBuyPrice` &gt; `downBuyPrice`, else DOWN).
-- **Exit**: If up-price ratio falls inside any of the `trade_2.exit_price_ratio_range` intervals:
-  - Holding **UP** → `sellUpToken()`; if sell succeeds and up-price ratio is in `trade_2.emergency_swap_price`, then `buyDownToken()`.
-  - Holding **DOWN** → `sellDownToken()`; if sell succeeds and up-price ratio is in `trade_2.emergency_swap_price`, then `buyUpToken()`.
-- **Config** (`[trade_2]`): `entry_price_ratio`, `entry_time_ratio`, `exit_price_ratio_range`, `emergency_swap_price` (optional).
-
-### trade_3 — Arbitrage Strategy ( Private )
-
-<img width="623" height="685" alt="image" src="https://github.com/user-attachments/assets/5efba7e5-64ef-4d09-b6f0-229446ceff2a" />
-
-<img width="820" height="440" alt="image" src="https://github.com/user-attachments/assets/43d5fd12-31a7-456b-b233-599009ff64bf" />
-
-<img width="390" height="181" alt="image" src="https://github.com/user-attachments/assets/e8fd5104-b1da-4c71-9fca-54d19a904b02" />
-<img width="388" height="176" alt="image" src="https://github.com/user-attachments/assets/280a3981-579b-46be-b863-5a9d318250d9" />
-<img width="389" height="175" alt="image" src="https://github.com/user-attachments/assets/bc55db1f-c9d2-4b47-a6ce-3be5d6149972" />
-<img width="392" height="176" alt="image" src="https://github.com/user-attachments/assets/787b27f7-8502-464c-86e8-133397a4eaca" />
-
-
-
-## Requirements
-
-- **Node.js** ≥ 20.6.0
-- **Wallet**: Polymarket proxy wallet and signer (private key) for the CLOB.
+Adjust filters like entry_trade_sec, trade_sec_from_resolve, take_profit, and buy_amount_limit_in_usd based on the market’s volatility and duration.
 
 ## Setup
 
-1. **Clone and install**
+```bash
+git clone https://github.com/Krypto-Hashers-Community/polymarket-copytrading-bot
+cd polymarket-copytrading-bot
+npm install
+# Edit .env: WALLET_PRIVATE_KEY, PROXY_WALLET_ADDRESS (if Magic), SIGNATURE_TYPE
+npm run dev
+```
 
-   Ubuntu
-   ```bash
-   git clone https://github.com/Krypto-Hashers-Community/polymarket-trading-bot
-   cd polymarket-trading-bot
-   npm install
-   ```
+# Advanced Polymarket Trading Bot.
 
-2. **Environment**
+I have developed an advanced Polymarket trading bot, including a high-performance Rust-based copy trading system optimized for low-latency execution, as well as an AI agent trading bot built in TypeScript with automated strategy logic. 
 
-   Create a `.env` in the project root (see `.gitignore`; do not commit secrets):
+The architecture is designed for speed, efficiency, and scalability, making it suitable for serious traders looking to automate and optimize their activity in prediction markets. If you are interested in purchasing or learning more about the system and its capabilities, feel free to contact me directly.
 
-   - `POLYMARKET_PRIVATE_KEY` – EOA private key that signs for the proxy wallet.
-   - `PROXY_WALLET_ADDRESS` – Proxy wallet address used with Polymarket CLOB.
+<img width="1884" height="617" alt="image" src="https://github.com/user-attachments/assets/900d2bb1-de25-4d4c-a94d-7f083990e145" />
 
-3. **Config**
+TG: [xstacks](https://t.me/x_stacks)
 
-   Edit `trade.toml`:
+## Run
 
-   - `strategy`: `"trade_1"` or `"trade_2"`.
-   - `trade_usd`, `max_retries`, `simulation`.
-   - `[market]`: `market_coin`, `market_period`.
-   - `[trade_1]`: `trading_range`, `price_change_threshold`, `min_arb_price_difference`, etc.
+```bash
+npm run dev    # tsx src/index.ts
+```
 
-## Scripts
+## Env
 
-| Command   | Description                          |
-|----------|--------------------------------------|
-| `npm run dev`   | Run bot: `tsx src/index.ts`          |
-| `npm run log`   | Run and log stdout/stderr to `log.txt` |
-| `npm run check` | Run inspector: `tsx src/inspect.ts`  |
-| `npm run build` | Compile: `tsc`                       |
-| `npm start`     | Run compiled: `node dist/index.js`   |
+- `WALLET_PRIVATE_KEY` – EOA or Magic export
+- `PROXY_WALLET_ADDRESS` – Polymarket profile (required for Magic; optional EOA)
+- `SIGNATURE_TYPE` – 0 = EOA, 1 = Magic/proxy, 2 = Gnosis Safe
 
-## Project layout
+### Target Wallets
 
-- `src/index.ts` – Entry: load config, create CLOB client, resolve market slug, connect WebSockets, instantiate `Trade`, main loop.
-- `src/config/` – Env, TOML config, market/slug helpers.
-- `src/services/` – CLOB client, Gamma API, WebSockets (CLOB + RTDS).
-- `src/trade/` – `Trade` class: decision logic, prices/trending, order placement (buy/sell UP/DOWN).
-- `trade.toml` – Strategy and market configuration.
-
-## Disclaimer
-
-This bot is for education and experimentation. Trading on Polymarket involves financial risk. Only use funds you can afford to lose and ensure you comply with Polymarket’s terms and applicable laws.
+|Address|Profile|Pnl|
+|-|-|-|
+|0x6031b6eed1c97e853c6e0f03ad3ce3529351f96d|@gabagool22|<img width="1200" src="https://github.com/user-attachments/assets/ef04d657-da3f-4b5a-aeed-b99f2c264df8" />|
+|0x63ce342161250d705dc0b16df89036c8e5f9ba9a|@0x8dxd|<img width="1200" src="https://github.com/user-attachments/assets/e032f4e9-001a-4dd6-b3b5-6d983167f92d" />|
+|0xa61ef8773ec2e821962306ca87d4b57e39ff0abd|@risk-manager|<img width="1200" src="https://github.com/user-attachments/assets/6ca49607-7615-4a0c-9786-54400971ee27" />|
+|0x781a48229e2c08e20d1eaad90ef73710988c96e6|@100USDollars|<img width="1200" src="https://github.com/user-attachments/assets/380debcb-dc09-466f-b7cd-ca2552605eb7" />|
+|0x0ac97e4f5c542cd98c226ae8e1736ae78b489641|@7thStaircase|<img width="1200" src="https://github.com/user-attachments/assets/c638d830-a472-4035-99ca-c33c72c3aa23" />|
+|0x1d0034134e339a309700ff2d34e99fa2d48b0313|@0x1d0034134e|<img width="1200" src="https://github.com/user-attachments/assets/2e07c2bf-2ac6-42d2-b319-356bfc0def91" />|
+|0xa9878e59934ab507f9039bcb917c1bae0451141d|@ilovecircle|<img width="1200" src="https://github.com/user-attachments/assets/b8342802-62d3-461d-8593-8f980178bdfe" />|
+|0xd0d6053c3c37e727402d84c14069780d360993aa|@k9Q2mX4L8A7ZP3R|<img width="1200" src="https://github.com/user-attachments/assets/e3eaf5bb-b6d3-47fd-bf96-93d13bcd4442" />|
+|0x594edB9112f526Fa6A80b8F858A6379C8A2c1C11|@0x594...1C11|<img width="1200" src="https://github.com/user-attachments/assets/d868f76d-74d9-405d-b168-7e8d5b27c083" />|
+|0x1979ae6B7E6534dE9c4539D0c205E582cA637C9D|@0x197...7C9D|<img width="1200" src="https://github.com/user-attachments/assets/45d5c5cd-e9b2-492f-ad9d-94c2d9bf1fac" />|
+|0x4460bf2c0aa59db412a6493c2c08970797b62970|@Bidou28old|<img width="1200" src="https://github.com/user-attachments/assets/9ff95df6-ff16-48ea-82d4-979d358f973d" />|
+|0x0eA574F3204C5c9C0cdEad90392ea0990F4D17e4|@0x0eA...17e4|<img width="1200" src="https://github.com/user-attachments/assets/e5162217-c7b8-4656-8858-e82c93ca36e8" />|
+|0x118689b24aead1d6e9507b8068d056b2ec4f051b|@russell110320|<img width="1200" src="https://github.com/user-attachments/assets/b508aa98-80a7-4a1f-8bf4-c4e097dc6105" />|
+|0x13414a77a4be48988851c73dfd824d0168e70853|@czoyimsezblaznili|<img width="1200" src="https://github.com/user-attachments/assets/eb1c7041-29b1-4a21-803f-59bbe8dc0a4b" />|
 
