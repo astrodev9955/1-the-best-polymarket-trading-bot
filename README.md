@@ -73,8 +73,8 @@ A Polymarket Trading bot that trades on [Polymarket](https://polymarket.com) **b
 
    Ubuntu
    ```bash
-   git clone https://github.com/Krypto-Hashers-Community/polymarket-arbitrage-trading-bot
-   cd polymarket-arbitrage-trading-bot
+   git clone https://github.com/Pol-Desk/polymarket-arbitrage-bot
+   cd polymarket-arbitrage-bot
    npm install
    ```
 
@@ -115,4 +115,3 @@ A Polymarket Trading bot that trades on [Polymarket](https://polymarket.com) **b
 ## Disclaimer
 
 This bot is for education and experimentation. Trading on Polymarket involves financial risk. Only use funds you can afford to lose and ensure you comply with Polymarket’s terms and applicable laws.
-
