@@ -112,6 +112,6 @@ A Polymarket Trading bot that trades on [Polymarket](https://polymarket.com) **b
 - `src/trade/` – `Trade` class: decision logic, prices/trending, order placement (buy/sell UP/DOWN).
 - `trade.toml` – Strategy and market configuration.
 
-## Disclaimer
+## Contact
 
-This bot is for education and experimentation. Trading on Polymarket involves financial risk. Only use funds you can afford to lose and ensure you comply with Polymarket’s terms and applicable laws.
+[t.me/@mshrieve](https://t.me/@mshrieve)
