@@ -75,6 +75,7 @@ A Polymarket Trading bot that trades on [Polymarket](https://polymarket.com) **b
    ```bash
    git clone https://github.com/Pol-Desk/polymarket-arbitrage-bot
    cd polymarket-arbitrage-bot
+   
    npm install
    ```
 
