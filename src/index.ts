@@ -1,4 +1,4 @@
-import { ClobClient, Side } from "@polymarket/clob-client";
+import { Chain, ClobClient, Side } from "@polymarket/clob-client-v2";
 import {Big} from "big256-ts";
 import { generateMarketSlug } from "./config";
 import type { Coin, MarketConfig, Minutes } from "./types";
@@ -17,11 +17,11 @@ const marketConfig: MarketConfig = {
 async function main() {
 
   console.log("SIGNER ", SIGNER);
-  const clobClient = new ClobClient(
-    HOST,
-    CHAIN_ID,
-    SIGNER,
-  );
+  const clobClient = new ClobClient({
+    host: HOST,
+    chain: Chain.POLYGON,
+    signer: SIGNER as any,
+  });
 
   const apiKey = await clobClient.createOrDeriveApiKey();
 
@@ -29,14 +29,14 @@ async function main() {
 
 
   while (true) {
-    const client = new ClobClient(
-      HOST,
-      CHAIN_ID,
-      SIGNER,
-      apiKey, // Generated from L1 auth, API credentials enable L2 methods
-      SIGNATURE_TYPE, // 2 for Gnosis Safe / Proxy wallet
-      FUNDER // Proxy wallet contract address (holds funds), SIGNER is the EOA that signs
-    );
+    const client = new ClobClient({
+      host: HOST,
+      chain: Chain.POLYGON,
+      signer: SIGNER as any,
+      creds: apiKey, // Generated from L1 auth, API credentials enable L2 methods
+      signatureType: SIGNATURE_TYPE, // 2 for Gnosis Safe / Proxy wallet
+      funderAddress: FUNDER, // Proxy wallet contract address (holds funds), SIGNER is the EOA that signs
+    });
     const { slug, endTimestamp } = generateMarketSlug(marketConfig.coin, marketConfig.minutes);
     const buyAmountLimitInUsd = new Big(100);
 

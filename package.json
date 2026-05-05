@@ -17,7 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@iarna/toml": "^2.2.5",
-    "@polymarket/clob-client": "^5.2.1",
+    "@polymarket/clob-client-v2": "^1.0.2",
     "@tensorflow/tfjs": "^4.22.0",
     "@types/ws": "^8.18.1",
     "big256-ts": "^5.0.4",

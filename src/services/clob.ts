@@ -4,7 +4,7 @@ import { POLYMARKET_PRIVATE_KEY, PROXY_WALLET_ADDRESS } from "../config";
 export const HOST = "https://clob.polymarket.com";
 export const CHAIN_ID = 137;
 
-// Wrap ethers v6 Wallet so @polymarket/clob-client can use it
+// Wrap ethers v6 Wallet so @polymarket/clob-client-v2 can use it
 export const SIGNER = Object.assign(new Wallet(POLYMARKET_PRIVATE_KEY), {
   // clob-client expects _signTypedData (ethers v5-style); delegate to v6 signTypedData
   _signTypedData(domain: any, types: any, value: any) {

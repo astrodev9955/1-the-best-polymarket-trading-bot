@@ -1,4 +1,4 @@
-import { ClobClient, Side } from "@polymarket/clob-client";
+import { ClobClient, Side } from "@polymarket/clob-client-v2";
 import { Market } from "../types";
 
 export class Trade {

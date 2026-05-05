@@ -1,4 +1,4 @@
-import { AssetType, OrderType, Side } from "@polymarket/clob-client";
+import { AssetType, OrderType, Side } from "@polymarket/clob-client-v2";
 import { Market } from "../types";
 import { GLOBAL_TX_PROCESS, TxProcess } from "../constant";
 import { retryWithInstantRetry } from "../utils/retry";
