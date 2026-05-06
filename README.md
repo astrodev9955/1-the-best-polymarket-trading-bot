@@ -73,8 +73,8 @@ A Polymarket Trading bot that trades on [Polymarket](https://polymarket.com) **b
 
    Ubuntu
    ```bash
-   git clone https://github.com/Prediction-Desk/polymarket-arbitrage-bot
-   cd polymarket-arbitrage-bot
+   git clone https://github.com/Predictional-Infra/polymarket-trading-bot
+   cd polymarket-trading-bot
    
    npm install
    ```
